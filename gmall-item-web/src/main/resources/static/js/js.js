@@ -353,6 +353,6 @@ $('.nav_top_three').mouseover(function(){
                 scrollTop:0
             })
         });
-    })
+})
 
 

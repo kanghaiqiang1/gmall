@@ -6,8 +6,8 @@ import org.springframework.context.annotation.ComponentScan;
 import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
-@MapperScan("com.atguigu.gmall.cart.mapper")
-@ComponentScan("com.atguigu.gmall")
+@MapperScan(basePackages = "com.atguigu.gmall.cart.mapper")
+@ComponentScan(basePackages = "com.atguigu.gmall")
 public class GmallCartServiceApplication {
 
 	public static void main(String[] args) {
