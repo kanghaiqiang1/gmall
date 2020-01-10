@@ -103,7 +103,7 @@ public class CartController {
     @LoginRequire
     public String toTrade(HttpServletRequest request){
         //获取参数
-        String userId = request.getParameter("userId");
+        String userId = (String) request.getAttribute("userId");
         //获取临时用户id
         String userTempId = CookieUtil.getCookieValue(request, "user-key", false);
         //有临时用户id，合并购物车并删除临时购物车

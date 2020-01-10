@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.atguigu.gmall.bean.CartInfo;
+import com.atguigu.gmall.bean.OrderInfo;
 import com.atguigu.gmall.bean.SkuInfo;
 import com.atguigu.gmall.cart.cartConst.CartConst;
 import com.atguigu.gmall.cart.mapper.CartInfoMapper;
@@ -178,7 +179,8 @@ public class CartServiceImpl implements CartService {
         //修改缓存  先删除再添加
         Jedis jedis = redisUtil.getJedis();
         String cartKey = CartConst.USER_KEY_PREFIX + userId + CartConst.USER_CART_KEY_SUFFIX;
-        jedis.hdel(cartKey);
+
+        jedis.hdel(cartKey,skuId);
         List<CartInfo> cartInfoList = cartInfoMapper.selectByExample(example);
         if(cartInfoList!=null && cartInfoList.size()>0){
             CartInfo info = cartInfoList.get(0);
@@ -187,6 +189,27 @@ public class CartServiceImpl implements CartService {
             jedis.hset(cartKey,skuId,JSON.toJSONString(info));
         }
         jedis.close();
+    }
+
+    @Override
+    public List<CartInfo> getCartCheckedList(String userId) {
+        String cartKey = CartConst.USER_KEY_PREFIX + userId + CartConst.USER_CART_KEY_SUFFIX;
+        Jedis jedis = redisUtil.getJedis();
+        //从缓存中获取购物车数据
+        List<String> cartJsonList = jedis.hvals(cartKey);
+        List<CartInfo> cartInfoList = new ArrayList<>();
+        if(cartJsonList!=null && cartJsonList.size()>0){
+            for (String cartJson : cartJsonList) {
+                CartInfo cartInfo = JSON.parseObject(cartJson, CartInfo.class);
+                //如果选中状态，加入集合
+                if("1".equals(cartInfo.getIsChecked())){
+                    cartInfoList.add(cartInfo);
+                }
+            }
+        }
+        //关闭jedis
+        jedis.close();
+        return cartInfoList;
     }
 
     //根据用户id从数据库获取数据并放入缓存

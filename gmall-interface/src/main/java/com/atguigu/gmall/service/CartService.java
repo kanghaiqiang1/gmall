@@ -42,4 +42,11 @@ public interface CartService {
      * @param userId
      */
     void checkCart(String isChecked, String skuId, String userId);
+
+    /**
+     * 获取购物车选中的商品
+     * @param userId
+     * @return
+     */
+    List<CartInfo> getCartCheckedList(String userId);
 }
