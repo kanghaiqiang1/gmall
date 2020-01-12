@@ -213,7 +213,7 @@ public class CartServiceImpl implements CartService {
     }
 
     //根据用户id从数据库获取数据并放入缓存
-    private List<CartInfo> loadCartCache(String userId) {
+    public List<CartInfo> loadCartCache(String userId) {
         Jedis jedis = redisUtil.getJedis();
         String cartKey = CartConst.USER_KEY_PREFIX + userId + CartConst.USER_CART_KEY_SUFFIX;
         //从数据库中查询

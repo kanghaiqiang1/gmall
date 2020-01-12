@@ -49,4 +49,11 @@ public interface CartService {
      * @return
      */
     List<CartInfo> getCartCheckedList(String userId);
+
+    /**
+     * 根据用户id获取数据库数据并放到缓存,验证价格使用
+     * @param userId
+     * @return
+     */
+    List<CartInfo> loadCartCache(String userId);
 }
