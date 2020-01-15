@@ -266,7 +266,7 @@ public class GwareServiceImpl implements GwareService {
             wareOrderTaskMapper.updateByExampleSelective(wareOrderTask,example);
         }
 
-
+    //减库存返回通知
     public void sendSkuDeductMQ(WareOrderTask wareOrderTask) throws JMSException{
         Connection conn = activeMQUtil.getConn();
 

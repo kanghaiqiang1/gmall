@@ -37,12 +37,10 @@ public class ListServiceImpl implements ListService {
     private RedisUtil redisUtil;
 
     public static final String ES_INDEX = "gmall";
-
     public static final String ES_TYPE = "SkuInfo";
 
     @Override
     public void saveSkuInfo(SkuLsInfo skuLsInfo) {
-
         // 保存数据
         Index index = new Index.Builder(skuLsInfo).index(ES_INDEX).type(ES_TYPE).id(skuLsInfo.getId()).build();
         try {
@@ -59,7 +57,7 @@ public class ListServiceImpl implements ListService {
         2.  准备好执行的动作
         3.  获取结果集
          */
-
+        //制作dsl语句
         String query = makeQueryStringForSearch(skuLsParams);
         Search search = new Search.Builder(query).addIndex(ES_INDEX).addType(ES_TYPE).build();
 
@@ -69,7 +67,7 @@ public class ListServiceImpl implements ListService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // 制作返回结果集
+        // 制作返回结果集  skuLsParams制作总页数使用
         SkuLsResult skuLsResult = makeResultForSearch(searchResult, skuLsParams);
         return skuLsResult;
     }
@@ -105,7 +103,7 @@ public class ListServiceImpl implements ListService {
     // 返回结果集
     private SkuLsResult makeResultForSearch(SearchResult searchResult, SkuLsParams skuLsParams) {
         SkuLsResult skuLsResult = new SkuLsResult();
-//        List<SkuLsInfo> skuLsInfoList;
+        //List<SkuLsInfo> skuLsInfoList;
         // 保存商品的！ skuLsInfoList
         ArrayList<SkuLsInfo> infoArrayList = new ArrayList<>();
         List<SearchResult.Hit<SkuLsInfo, Void>> hits = searchResult.getHits(SkuLsInfo.class);
@@ -123,11 +121,11 @@ public class ListServiceImpl implements ListService {
         }
 
         skuLsResult.setSkuLsInfoList(infoArrayList);
-//        // 总条数
+//        总条数
 //        long total;
         skuLsResult.setTotal(searchResult.getTotal());
 
-//        // 总页数
+//        总页数
 //        long totalPages;
         // 10 3 4  | 9 3 3
         // long totalPages = searchResult.getTotal()%skuLsParams.getPageSize()==0?searchResult.getTotal()/skuLsParams.getPageSize():searchResult.getTotal()/skuLsParams.getPageSize()+1;

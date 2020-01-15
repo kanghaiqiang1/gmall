@@ -1,4 +1,4 @@
-package com.atguigu.gmall.manage.impl.service;
+package com.atguigu.gmall.manage.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;

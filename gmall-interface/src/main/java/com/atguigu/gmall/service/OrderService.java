@@ -1,6 +1,10 @@
 package com.atguigu.gmall.service;
 
 import com.atguigu.gmall.bean.OrderInfo;
+import com.atguigu.gmall.bean.enums.ProcessStatus;
+
+import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
 
@@ -47,4 +51,32 @@ public interface OrderService {
      * @return
      */
     OrderInfo getOrderInfo(String orderId);
+
+    /**
+     * 修改订单支付状态
+     * @param orderId
+     * @param processStatus
+     */
+    void updateOrderStatus(String orderId, ProcessStatus processStatus);
+
+    /**
+     * 通知减库存
+     * @param orderId
+     */
+    void sendOrderStatus(String orderId);
+
+    /**
+     * 仓库拆单
+     * @param orderId
+     * @param wareSkuMap
+     * @return
+     */
+    List<OrderInfo> splitOrder(String orderId, String wareSkuMap);
+
+    /**
+     * 初始化仓库
+     * @param orderInfo
+     * @return
+     */
+    Map initWareOrder(OrderInfo orderInfo);
 }

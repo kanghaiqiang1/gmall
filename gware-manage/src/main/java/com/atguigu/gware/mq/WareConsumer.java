@@ -26,30 +26,21 @@ import java.util.*;
  * @param
  * @return
  */
-
+@Component
 public class WareConsumer {
-
 
     @Autowired
     WareOrderTaskMapper wareOrderTaskMapper;
-
     @Autowired
     WareOrderTaskDetailMapper wareOrderTaskDetailMapper;
-
     @Autowired
     WareSkuMapper wareSkuMapper;
-
     @Autowired
     ActiveMQUtil activeMQUtil;
-
     @Autowired
     JmsTemplate jmsTemplate;
-
-
     @Autowired
     GwareService gwareService;
-
-
 
     @JmsListener(destination = "ORDER_RESULT_QUEUE",containerFactory = "jmsQueueListener")
     public void receiveOrder(TextMessage textMessage) throws JMSException {
@@ -59,7 +50,6 @@ public class WareConsumer {
         gwareService.saveWareOrderTask(wareOrderTask);
         textMessage.acknowledge();
 
-
         List<WareOrderTask> wareSubOrderTaskList = gwareService.checkOrderSplit(wareOrderTask);
         if (wareSubOrderTaskList != null && wareSubOrderTaskList.size() >= 2) {
             for (WareOrderTask orderTask : wareSubOrderTaskList) {
@@ -68,12 +58,6 @@ public class WareConsumer {
         } else {
             gwareService.lockStock(wareOrderTask);
         }
-
-
     }
-
-
-
-
 
 }

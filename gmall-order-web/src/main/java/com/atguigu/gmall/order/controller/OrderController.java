@@ -1,21 +1,22 @@
 package com.atguigu.gmall.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
 import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.bean.enums.OrderStatus;
 import com.atguigu.gmall.bean.enums.ProcessStatus;
 import com.atguigu.gmall.config.CookieUtil;
 import com.atguigu.gmall.config.LoginRequire;
-import com.atguigu.gmall.service.CartService;
-import com.atguigu.gmall.service.ManageService;
-import com.atguigu.gmall.service.OrderService;
-import com.atguigu.gmall.service.UserService;
+import com.atguigu.gmall.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class OrderController {
@@ -28,6 +29,8 @@ public class OrderController {
     private OrderService orderService;
     @Reference
     private ManageService manageService;
+    @Reference
+    private PaymentService paymentService;
 
     //跳转到去结算页面
     @RequestMapping("trade")
@@ -107,7 +110,26 @@ public class OrderController {
         String orderId = orderService.saveOrder(orderInfo);
         //删除流水号
         orderService.deleteTradeCode(userId,tradeNo);
+        //调用延迟队列    设置关闭订单时间：一天
+        paymentService.closeOrderInfo(orderId,24*3600);
         //重定向到支付页面  携带订单id
         return "redirect://payment.gmall.com/index?orderId="+orderId;
+    }
+
+    @RequestMapping("orderSplit")
+    @ResponseBody
+    public String orderSplit(HttpServletRequest request){
+        String orderId = request.getParameter("orderId");
+        String wareSkuMap = request.getParameter("wareSkuMap");
+
+        //生成子订单
+        List<OrderInfo> subOrderInfoList = orderService.splitOrder(orderId,wareSkuMap);
+        List<Map> wareMapList = new ArrayList<>();
+        for (OrderInfo orderInfo : subOrderInfoList) {
+            //减库存
+            Map map = orderService.initWareOrder(orderInfo);
+            wareMapList.add(map);
+        }
+        return JSON.toJSONString(wareMapList);
     }
 }

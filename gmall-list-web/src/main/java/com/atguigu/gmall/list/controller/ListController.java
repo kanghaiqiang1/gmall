@@ -1,7 +1,6 @@
 package com.atguigu.gmall.list.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.alibaba.fastjson.JSON;
 import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.service.ListService;
 import com.atguigu.gmall.service.ManageService;
@@ -25,7 +24,7 @@ public class ListController {
     public String getList(SkuLsParams skuLsParams, HttpServletRequest request) {
         //分页    设置每页显示条数
         skuLsParams.setPageSize(2);
-
+        //从ES查询商品
         SkuLsResult skuLsResult = listService.search(skuLsParams);
         // 获取sku属性值列表
         List<SkuLsInfo> skuLsInfoList = skuLsResult.getSkuLsInfoList();

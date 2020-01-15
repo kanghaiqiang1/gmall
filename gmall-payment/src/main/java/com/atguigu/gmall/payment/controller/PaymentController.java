@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,12 +93,14 @@ public class PaymentController {
 
     @RequestMapping("/alipay/callback/return")
     public String callbackReturn(){
+        //同步回调
         return "redirect:"+AlipayConfig.return_order_url;
     }
 
     @RequestMapping("/alipay/callback/notify")
     @ResponseBody
     public String paymentNotify(@RequestParam Map<String,String> paramMap,HttpServletRequest request) throws AlipayApiException {
+        //异步回调  验签
         boolean signVerified = AlipaySignature.rsaCheckV1(paramMap, AlipayConfig.alipay_public_key, CHARSET, AlipayConfig.sign_type);
         String outTradeNo = paramMap.get("out_trade_no");
         if(signVerified){
@@ -123,6 +124,8 @@ public class PaymentController {
                 //设置内容
                 paymentInfoUpd.setCallbackContent(paramMap.toString());
                 paymentService.updatePaymentInfo(outTradeNo,paymentInfoUpd);
+                //消息提供者 发送订单id和结果
+                paymentService.sendPaymentResult(paymentInfoHas,"success");
                 return "success";
             }else {
                 //验签失败
@@ -143,6 +146,23 @@ public class PaymentController {
         paymentService.updatePaymentInfo(paymentInfoQuery.getOutTradeNo(),paymentInfoQuery);
         System.out.println("flag:"+flag);
         return "退款"+flag;
+    }
+
+    @RequestMapping("sendPaymentResult")
+    @ResponseBody
+    public String sendPaymentResult(PaymentInfo paymentInfo,@RequestParam("result") String result){
+        paymentService.sendPaymentResult(paymentInfo,result);
+        return "sent payment result";
+    }
+
+    //查询支付状态
+    @RequestMapping("queryPaymentResult")
+    @ResponseBody
+    public String queryPaymentResult(OrderInfo orderInfo){
+        OrderInfo orderInfoQuery = orderService.getOrderInfo(orderInfo.getId());
+        //判断支付结果
+        boolean result = paymentService.checkPayment(orderInfoQuery);
+        return ""+result;
     }
 
 }
